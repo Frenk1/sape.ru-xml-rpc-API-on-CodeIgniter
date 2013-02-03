@@ -1,5 +1,5 @@
 ###################
-Копия Codeigniter для работы с xml-rep SapeApi
+Копия Codeigniter для работы с xml-rpc SapeApi
 ###################
 https://github.com/Frenk1/xml-rpc-Sape.ru-api
 

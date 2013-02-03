@@ -15,6 +15,8 @@ class Sape extends CI_Controller {
                 'login' => 'login here',
                 'password' => 'md5 hash here' // md5 hash
             );
+        
+        $this->load->library('sapeapiloader');
         $this->load->library('sapeapi', $auth_data);
         $this->_sapeapi = $this->sapeapi->set_debug(0);
 
@@ -24,11 +26,6 @@ class Sape extends CI_Controller {
                 ->xml_cache()
                 ->fetch()
                 ->get_xml();
-
-        var_dump( $user );
-
-        #получение первичных данных. Нужно для авторизации и получения баланса юзера
-        $this->_get_user = $this->get_user();
     }
 
     /**

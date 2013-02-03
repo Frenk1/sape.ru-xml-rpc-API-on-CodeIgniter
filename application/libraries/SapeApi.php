@@ -12,18 +12,17 @@ class SapeApiException extends Exception{}
 * 
 * пример:
 * require_once './3rdparty/xmlrpc-3.0.0.beta/lib/xmlrpc.inc';
-* require_once 'sape_api.class.php';
 * $sape_xml = new SapeApi;
 * $connect = $sape_xml->set_debug(0)->connect();
 * $get_user = $connect->query('sape.get_user'); // метод без аргументов
 * $this->_sapeapi->query('sape.get_user')->xml_cache()->fetch()->get_xml(); - получение результатов распарсенного xml
-* $get_site_pages = $connect->query('sape.get_site_pages', array(88888)); // метод с одним аргументом
-* $get_site_pages = $connect->query('sape.get_site_pages', array(88888, 111)); // метод с двумя аргументами
+* $this->_sapeapi->query('sape.get_site_pages', array(88888))->xml_cache()->fetch()->get_xml(); // метод с одним аргументом
+* $this->_sapeapi->query('sape.get_site_pages', array(88888, 111))->xml_cache()->fetch()->get_xml(); // метод с двумя аргументами
 *
 * @author Frenk1 aka Gudd.ini
 * @version 0
 */
-class SapeApi{
+class SapeApi extends SapeApiLoader {
     /**
     * Свойства с данными для соединения с сервером xml-rpc
     */
@@ -103,9 +102,19 @@ class SapeApi{
     protected $_model_name;
 
     /**
+    * модель для запроса
+    */
+    protected $_model;
+
+    /**
      * результат выполнения метода fetch. Сохранение результата в переменную для дальнейшей работы с массивом
      */
     protected $_fetch_result;
+
+    /**
+    * 
+    */
+    protected $_sapeapiloader;
 
     /**
     * доступ к экземпляру одиночки (singletone)
@@ -116,6 +125,7 @@ class SapeApi{
     * need dictionary_errors.php
     */
     function __construct($auth_data = array()) {
+        parent::__construct();
         try {
             if (!$auth_data) {
                 throw new SapeApiException('SapeApi no have auth data');
@@ -136,12 +146,11 @@ class SapeApi{
         // загрузка драйвера кэша
         // TODO - сделать в интерфейсе отображение доступных адаптеров кэша и предупреждения
         $this->CI->load->driver('cache'/*, array('adapter' => 'apc', 'backup' => 'file')*/);
-
         $this->_login = $auth_data['login'];
         $this->_password = $auth_data['password'];
 
         $this->_dictionary_errors = function_exists('sape_dictionary') ? sape_dictionary() : array();
-
+        $this->_sapeapiloader = $this->CI->sapeapiloader;
         return $this;
     }
 
@@ -222,6 +231,7 @@ class SapeApi{
         }
     }
 
+
     /**
     * генерирование запроса к серверу sape
     */
@@ -229,6 +239,9 @@ class SapeApi{
         $num_args = func_num_args();
         $args = array();
         $sape_method = func_get_arg(0);
+        $this->_sapeapiloader->load_model($sape_method);
+
+        log_message('debug', 'SapeApi query: ' . $sape_method);
 
         if ($num_args > 1) {
             foreach (func_get_args() as $num => $arg) {
@@ -297,8 +310,6 @@ class SapeApi{
             }
         }
 
-
-
         try {
             if ($this->_response->faultCode()) {
                 throw new SapeApiException('Sape server response error');
@@ -310,7 +321,6 @@ class SapeApi{
 
         return $this->_response;
     }
-
 
 
     /**

@@ -355,7 +355,7 @@ class SapeApi extends SapeApiLoader {
 
         $response = php_xmlrpc_decode($response->value());
         $this->set_xml($response); // чтобы в случае чего - продолжить работу с цепочкой
-
+        $this->_sapeapiloader->set_data($this->get_xml());
         return $this;
     }
 

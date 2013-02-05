@@ -3,19 +3,21 @@
 class Sape extends CI_Controller {
 
     public $_sapeapi;
-    public $_get_user;
-    public $_model_messages;
-    private $_manager;
+    public $CI;
 
     public function __construct() {
         parent::__construct();
+        $this->CI =& get_instance();
 
         # инициализация библиотеки для работы с запросами xml-rpc sape.ru
         $auth_data = array(
                 'login' => 'login here',
                 'password' => 'md5 hash here' // md5 hash
+
             );
         
+        $this->load->database();
+        $this->load->dbforge();
         $this->load->library('sapeapiloader');
         $this->load->library('sapeapi', $auth_data);
         $this->_sapeapi = $this->sapeapi->set_debug(0);
@@ -26,6 +28,14 @@ class Sape extends CI_Controller {
                 ->xml_cache()
                 ->fetch()
                 ->get_xml();
+
+        $balance = $this
+                ->_sapeapi
+                ->query('sape.get_balance')
+                ->xml_cache()
+                ->fetch()
+                ->get_xml();
+
     }
 
     /**

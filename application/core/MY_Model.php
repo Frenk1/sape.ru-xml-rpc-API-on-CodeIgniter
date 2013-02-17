@@ -13,19 +13,36 @@ class MY_Model extends CI_Model {
     protected $_prepared_sync_data = array();
     protected $_ttl_hours = 5; // time to live in hours
     protected $_fields;
-    protected $_result_type; // тип полученных данных от sape (string,array), для корректной вставки в бд
-    protected $_detect_data_types; // переданный флаг, нужно ли автоматом определять тип полей полученных данных
+    protected $_sync_db_fields; // переданный флаг, нужно ли синхронизировать результаты с бд
 
     function __construct() {
         log_message('debug', 'Sape Extend Model Initialized.');
         parent::__construct();
     }
 
+    /**
+    * array, one_array, one_to_one
+    * array - представление для бд (множество строк)
+    * one_array - строка, в результатах от sape, преобразованная в массив  - является одной записью в бд
+    * one_to_one - массив, который должен быть одной строкой в бд
+    */
+    private function _get_type() {
+        $type = isset($this->_result_type) ? $this->_result_type : false;
+
+        if (!$type) {
+            if (is_array($this->_sync_data)) {
+                $this->_result_type = 'array';
+            } else {
+                $this->_result_type = 'one_array';
+            }
+        }
+    }
+
     // запись данных, каждые n часов
     public function process_data($data, $sync_db_fields = false, $fields) {
         $this->_sync_data = $data;
         $this->_fields = $fields;
-        $this->_detect_data_types = $sync_db_fields;
+        $this->_sync_db_fields = $sync_db_fields;
         $this->_table_name = strtolower($this->_table_name);
         $time = strftime('%Y-%m-%d %H:%M:%S');
 
@@ -38,13 +55,14 @@ class MY_Model extends CI_Model {
 
         #если нет результата, то нужно записать новые данные
         if (!$last_row->result()) {
-            if ($this->_result_type == 'string') {
-                $this->db->insert($this->_table_name, $this->_prepared_sync_data);
 
-            } elseif ($this->_result_type == 'array') {
+            if ($this->_result_type == 'array') {
                 foreach ($this->_prepared_sync_data as $key => $data) {
                     $this->db->insert($this->_table_name, $data);
                 }
+
+            } else {
+                $this->db->insert($this->_table_name, $this->_prepared_sync_data);
             }
         }
         unset($last_row);
@@ -52,6 +70,7 @@ class MY_Model extends CI_Model {
 
 
     protected function _prepare_table() {
+        $this->_get_type();
         $this->_extend_fields();
         $this->CI->dbforge->add_field($this->_fields);
         $this->CI->dbforge->create_table($this->_table_name, TRUE);
@@ -135,22 +154,34 @@ class MY_Model extends CI_Model {
     }
 
     /**
+    * обработка результатов в виде массива, но с одной строкой (в представлении бд)
+    */
+    protected function _result_one_array_handler($field, $params) {
+        if ($params['sync']) {
+            $this->_prepared_sync_data[$field] = $this->_sync_data[$field];
+        }
+        $this->_prepared_sync_data = $this->_add_extend_data($this->_prepared_sync_data);
+    }
+
+    /**
     * расширение полей бд полями ID и DATE и учет параметра sync
     * подготовка данных для синхронизации
     */
     protected function _extend_fields() {
         # удаление полей sync и полей, у которых sync == false
         # и добавление полей ID и DATE
+        # Возвращаемое от sape значение может быть строкой
         foreach ($this->_fields as $field => $params) {
 
             # возвращаемый от sape результат может быть массивом и просто значением
-            if (is_array($this->_sync_data)) {
+            if ($this->_result_type == 'array') {
                 $this->_result_array_handler($field, $params);
-                $this->_result_type = 'array';
 
-            } else {
+            } elseif ($this->_result_type == 'one_array') {
                 $this->_result_handler($field, $params);
-                $this->_result_type = 'string';
+
+            } elseif ($this->_result_type == 'one_to_one') {
+                $this->_result_one_array_handler($field, $params);
             }
         }
     }

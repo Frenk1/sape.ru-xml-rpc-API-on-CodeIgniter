@@ -14,7 +14,6 @@ class Sape extends CI_Controller {
         $auth_data = array(
                 'login' => 'login here',
                 'password' => 'md5 hash here' // md5 hash
-
             );
         
         $this->load->database();
@@ -80,21 +79,21 @@ class Sape extends CI_Controller {
         //         ->_sapeapi
         //         ->query('sape.get_sites_pages_count')
         //         ->db_fields(true)
-        //         ->xml_cache(3600)
+        //         ->xml_cache(300)
         //         // ->flush_query_cache()
         //         ->fetch()
         //         ->get_xml();
         // var_dump($get_sites_pages_count);
 
-        $get_site_money_stats = $this
-                ->_sapeapi
-                ->query('sape.get_site_money_stats', array(998242, 2013, 1))
-                ->db_fields(false)
-                ->xml_cache(3600)
-                // ->flush_query_cache()
-                ->fetch()
-                ->get_xml();
-        var_dump($get_site_money_stats);
+        // $get_site_money_stats = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_site_money_stats', array(998242, 2013, 1))
+        //         ->db_fields(false)
+        //         ->xml_cache(3600)
+        //         // ->flush_query_cache()
+        //         ->fetch()
+        //         ->get_xml();
+        // var_dump($get_site_money_stats);
 
     }
 

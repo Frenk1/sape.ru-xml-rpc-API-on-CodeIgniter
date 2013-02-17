@@ -25,9 +25,11 @@ class Sape extends CI_Controller {
         // $user = $this
         //         ->_sapeapi
         //         ->query('sape.get_user')
-        //         ->xml_cache()
+        //         ->db_fields(true)
+        //         ->xml_cache(3600)
         //         ->fetch()
         //         ->get_xml();
+        // // var_dump( $user );
 
 
         // $balance_real = $this
@@ -50,10 +52,10 @@ class Sape extends CI_Controller {
         //         ->_sapeapi
         //         ->query('sape.get_balance')
         //         ->db_fields(true)
-        //         // ->xml_cache()
+        //         ->xml_cache(3600)
         //         ->fetch()
         //         ->get_xml();
-        // var_dump($balance);
+        // // var_dump($balance);
 
         // $get_sites = $this
         //         ->_sapeapi

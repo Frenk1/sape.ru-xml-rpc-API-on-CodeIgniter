@@ -1,4 +1,6 @@
 <?
+defined('BASEPATH') OR exit('No direct script access allowed');
+
 class SapeApiLoaderException extends Exception{}
 
 class SapeApiLoader {
@@ -36,7 +38,12 @@ class SapeApiLoader {
                 'sape.get_user'          => 'Get_user', // invoke example - $this->CI->Get_user->get_test()
                 'sape.get_balance'       => 'Get_balance',
                 'sape.get_balance_real'  => 'Get_balance_real',
-                'sape.get_balance_locks' => 'Get_balance_locks'
+                'sape.get_balance_locks' => 'Get_balance_locks',
+                'sape.get_bills'         => 'Get_bills',
+                'sape.get_sites'         => 'Get_sites',
+                'sape.get_sites_links_count' => 'Get_sites_links_count',
+                'sape.get_sites_pages_count' => 'Get_sites_pages_count',
+                'sape.get_site_money_stats'  => 'Get_site_money_stats',
                 // ... and other
             );
     }
@@ -56,9 +63,9 @@ class SapeApiLoader {
         }
     }
 
-    protected function set_data($data) {
-        log_message('debug', 'SapeApiLoader method _set_data cannot sync with databse');
-        $this->_model && method_exists($this->_model, '_set_data') ? $this->_model->_set_data($data) : '';
+    protected function init($data, $detect_db_fields = false) {
+        log_message('debug', 'SapeApiLoader method init cannot sync with databse');
+        $this->_model && method_exists($this->_model, 'init') ? $this->_model->init($data, $detect_db_fields) : '';
     }
 
     /** определение модели по запросу */

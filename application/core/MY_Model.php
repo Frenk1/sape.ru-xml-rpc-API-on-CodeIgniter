@@ -25,7 +25,7 @@ class MY_Model extends CI_Model {
     public function process_data($data, $sync_db_fields = false, $fields) {
         $this->_sync_data = $data;
         $this->_fields = $fields;
-        $this->_detect_data_types = $detect_db_fields;
+        $this->_detect_data_types = $sync_db_fields;
         $this->_table_name = strtolower($this->_table_name);
         $time = strftime('%Y-%m-%d %H:%M:%S');
 

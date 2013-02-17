@@ -8,7 +8,8 @@ application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
 
-application/controllers/sape.php
+application/controllers/*
+!application/controllers/sape.php
 
 user_guide_src/build/*
 user_guide_src/cilexer/build/*

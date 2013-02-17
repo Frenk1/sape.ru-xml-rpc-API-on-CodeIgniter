@@ -1,4 +1,11 @@
 <?
+/**
+* DANGER !!! ALARM!!!
+* old model !!!!!!!!!
+**
+* *
+* *
+* */
 class Get_user extends CI_Model {
     protected $_table_name;
 

@@ -1,4 +1,5 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Sape extends CI_Controller {
 
@@ -18,23 +19,82 @@ class Sape extends CI_Controller {
         
         $this->load->database();
         $this->load->dbforge();
-        $this->load->library('sapeapiloader');
-        $this->load->library('sapeapi', $auth_data);
+        $this->load->library('SapeApiLoader');
+        $this->load->library('SapeApi', $auth_data);
         $this->_sapeapi = $this->sapeapi->set_debug(0);
 
-        $user = $this
-                ->_sapeapi
-                ->query('sape.get_user')
-                ->xml_cache()
-                ->fetch()
-                ->get_xml();
+        // $user = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_user')
+        //         ->xml_cache()
+        //         ->fetch()
+        //         ->get_xml();
 
-        $balance = $this
+
+        // $balance_real = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_balance_real')
+        //         ->xml_cache()
+        //         ->fetch()
+        //         ->get_xml();
+
+        // $get_balance_locks = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_balance_locks')
+        //         ->xml_cache()
+        //         ->fetch()
+        //         ->get_xml();
+
+/************************************/
+
+        // $balance = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_balance')
+        //         ->db_fields(true)
+        //         // ->xml_cache()
+        //         ->fetch()
+        //         ->get_xml();
+        // var_dump($balance);
+
+        // $get_sites = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_sites')
+        //         ->db_fields(true)
+        //         // ->xml_cache()
+        //         ->fetch()
+        //         ->get_xml();
+        // var_dump($get_sites);
+
+
+        // $get_sites_links_count = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_sites_links_count')
+        //         ->db_fields(true)
+        //         ->xml_cache(3600)
+        //         // ->flush_query_cache()
+        //         ->fetch()
+        //         ->get_xml();
+        // var_dump($get_sites_links_count);
+
+        // $get_sites_pages_count = $this
+        //         ->_sapeapi
+        //         ->query('sape.get_sites_pages_count')
+        //         ->db_fields(true)
+        //         ->xml_cache(3600)
+        //         // ->flush_query_cache()
+        //         ->fetch()
+        //         ->get_xml();
+        // var_dump($get_sites_pages_count);
+
+        $get_site_money_stats = $this
                 ->_sapeapi
-                ->query('sape.get_balance')
-                ->xml_cache()
+                ->query('sape.get_site_money_stats', array(998242, 2013, 1))
+                ->db_fields(false)
+                ->xml_cache(3600)
+                // ->flush_query_cache()
                 ->fetch()
                 ->get_xml();
+        var_dump($get_site_money_stats);
 
     }
 

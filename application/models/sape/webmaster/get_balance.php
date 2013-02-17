@@ -17,6 +17,7 @@ class Get_balance extends MY_Model {
     */
     public $CI;
     public $_table_name = false;
+    public $_result_type = 'one_array';
     private $_ttl = false;
 
     function __construct() {

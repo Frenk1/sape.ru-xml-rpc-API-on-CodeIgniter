@@ -22,6 +22,7 @@ class Get_sites_links_count extends MY_Model {
     */
     public $CI;
     public $_table_name = false;
+    public $_result_type = 'array';
     private $_ttl = 1;
 
     function __construct() {

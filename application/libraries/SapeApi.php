@@ -1,4 +1,6 @@
 <?
+defined('BASEPATH') OR exit('No direct script access allowed');
+
 require_once APPPATH . 'third_party/xmlrpc-3.0.0.beta/lib/xmlrpc.inc';
 require_once APPPATH . 'third_party/sape/dictionary_errors.php';
 
@@ -20,13 +22,13 @@ class SapeApiException extends Exception{}
 * $this->_sapeapi->query('sape.get_site_pages', array(88888, 111))->xml_cache()->fetch()->get_xml(); // метод с двумя аргументами
 *
 * @author Frenk1 aka Gudd.ini
-* @version 0
+* @version 0.2
 */
 class SapeApi extends SapeApiLoader {
     /**
     * Свойства с данными для соединения с сервером xml-rpc
     */
-    protected $_path = '/xmlrpc/',
+    protected $_path = '/xmlrpc/', # /xmlrpc/?v=extended
               $_host = 'api.sape.ru',
               $_port = 80;
 
@@ -117,6 +119,11 @@ class SapeApi extends SapeApiLoader {
     protected $_sapeapiloader;
 
     /**
+    * синхронизировать ли с бд?
+    */
+    private $_db_fields = false;
+
+    /**
     * доступ к экземпляру одиночки (singletone)
     */
     public $CI;
@@ -145,7 +152,7 @@ class SapeApi extends SapeApiLoader {
 
         // загрузка драйвера кэша
         // TODO - сделать в интерфейсе отображение доступных адаптеров кэша и предупреждения
-        $this->CI->load->driver('cache'/*, array('adapter' => 'apc', 'backup' => 'file')*/);
+        $this->CI->load->driver('cache', array('adapter' => 'file', 'backup' => 'dummy'));
         $this->_login = $auth_data['login'];
         $this->_password = $auth_data['password'];
 
@@ -155,10 +162,18 @@ class SapeApi extends SapeApiLoader {
     }
 
     /**
-    * установка кэширования
+    * установка кэширования в секундах
     */
-    function xml_cache($param = true) {
-        $this->_cached = (bool)$param;
+    function xml_cache($param = 3600) {
+        try {
+            if (!is_numeric($param)) {
+                throw new SapeApiException('Method "xml_cache" must be numeric type');
+            }
+        } catch (SapeApiException $e) {
+            echo $e->getMessage();
+        }
+
+        $this->_cached = $param;
         return $this;
     }
 
@@ -231,6 +246,13 @@ class SapeApi extends SapeApiLoader {
         }
     }
 
+    /**
+    * Синхронизировать ли с бд?
+    */
+    function db_fields($auto = false) {
+        $this->_db_fields = $auto;
+        return $this;
+    }
 
     /**
     * генерирование запроса к серверу sape
@@ -240,6 +262,7 @@ class SapeApi extends SapeApiLoader {
         $args = array();
         $sape_method = func_get_arg(0);
         $this->_sapeapiloader->load_model($sape_method);
+        $this->_cache_name = $sape_method;
 
         log_message('debug', 'SapeApi query: ' . $sape_method);
 
@@ -249,6 +272,7 @@ class SapeApi extends SapeApiLoader {
                 if ($num == 1) {
                     foreach ($arg as $a) {
                         $args[] = php_xmlrpc_encode($a);
+                        $this->_cache_name .= '__' . $a;
                     }
                 }
             }
@@ -287,15 +311,13 @@ class SapeApi extends SapeApiLoader {
             $cache_name = $this->_cache_name;
 
             // если нет кэша для выполняемого метода, то обновить запрос
-
             $cache = $this->CI->cache->get( $cache_name );
             if ( !$cache ) {
                 $this->connect();
                 $this->sync_cookies();
                 $this->_response = $this->_connect->send($this->_query);
-
                 $cache = $this->_response->serialize('utf-8');
-                $this->CI->cache->save($cache_name, $cache, 3600); // кэширование результата запроса на час
+                $this->CI->cache->save($cache_name, $cache, $this->_cached); // кэширование результата запроса на час
                 $this->_cahe_refreshed = true; // уведомим, что обновился кэш
 
             } else {
@@ -330,18 +352,17 @@ class SapeApi extends SapeApiLoader {
         // если не передано имя кэша, то извлечем название метода в запросе к xml-rpc sape.ru
         // и используем в качестве названия кэша
         if (is_null($cache_name)) {
-            $cache_name = $this->cache_name;
+            $cache_name = $this->_cache_name;
         }
 
         // удалим кэш безо всяких проверок на существование, ибо пофиг
-        $this->CI->cache->file->delete($cache_name);
+        $this->CI->cache->delete($cache_name);
 
         return $this;
     }
 
 
     /**
-     * TODO применить параметр кэширования полученный при цепочке вызовов
      * Выполнить запрос, извлечь данные, обработать ошибки
      * @return array
      */
@@ -350,12 +371,11 @@ class SapeApi extends SapeApiLoader {
         if ($response->faultCode()) {
             $this->set_errnum($response->faultCode());
             $this->set_error($response->faultString());
-            return false;
         }
-
+        
         $response = php_xmlrpc_decode($response->value());
         $this->set_xml($response); // чтобы в случае чего - продолжить работу с цепочкой
-        $this->_sapeapiloader->set_data($this->get_xml());
+        $this->_sapeapiloader->init($this->get_xml(), $this->_db_fields);
         return $this;
     }
 

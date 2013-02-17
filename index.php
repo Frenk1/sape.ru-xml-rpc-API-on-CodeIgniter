@@ -211,6 +211,9 @@ switch (ENVIRONMENT)
 	// Name of the "system folder"
 	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
 
+	// Path to index.php file
+	define('ROOTPATH', pathinfo($_SERVER['SCRIPT_FILENAME'], PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR);
+
 	// The path to the "application" folder
 	if (is_dir($application_folder))
 	{

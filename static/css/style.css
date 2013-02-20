@@ -1,0 +1,48 @@
+body{
+    padding:60px 0 0 0;
+}
+.ui-jqgrid .ui-jqgrid-titlebar{
+    padding:.3em .2em 2.2em .3em;
+}
+.ui-pg-selbox, 
+.ui-pg-input{
+    width:auto;
+    padding:0;
+}
+
+.fancybox-right,
+.fancybox-left {
+    width:50px;
+}
+
+/** allways show arrows */
+#fancybox-left,
+#fancybox-right{
+    width:55px;
+    background:#EEE;
+}
+#fancybox-left:hover,
+#fancybox-right:hover{
+    background:#DDD;
+}
+#fancybox-left span {
+    left: 20px;
+}
+#fancybox-right span {
+    left: auto;
+    right: 20px;
+}
+
+td a,
+td a:link {
+    text-decoration: underline;
+    color: #FF0000;
+}
+td a:hover {
+    text-decoration: underline;
+    color: #000000;
+}
+td a:visited {
+    text-decoration: underline;
+    color: #FF0000;
+}

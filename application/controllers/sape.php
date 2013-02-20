@@ -4,12 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Sape extends CI_Controller {
 
     public $_sapeapi;
-    public $CI;
 
     public function __construct() {
         parent::__construct();
-        $this->CI =& get_instance();
-
         # инициализация библиотеки для работы с запросами xml-rpc sape.ru
         $auth_data = array(
                 'login' => 'login here',

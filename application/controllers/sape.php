@@ -27,7 +27,7 @@ class Sape extends CI_Controller {
         //         ->query('sape.get_user')
         //         ->db_fields(true)
         //         ->xml_cache(3600)
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // // var_dump( $user );
 
@@ -36,14 +36,14 @@ class Sape extends CI_Controller {
         //         ->_sapeapi
         //         ->query('sape.get_balance_real')
         //         ->xml_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
 
         // $get_balance_locks = $this
         //         ->_sapeapi
         //         ->query('sape.get_balance_locks')
         //         ->xml_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
 
 /************************************/
@@ -53,7 +53,7 @@ class Sape extends CI_Controller {
         //         ->query('sape.get_balance')
         //         ->db_fields(true)
         //         ->xml_cache(3600)
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // // var_dump($balance);
 
@@ -62,7 +62,7 @@ class Sape extends CI_Controller {
         //         ->query('sape.get_sites')
         //         ->db_fields(true)
         //         // ->xml_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // var_dump($get_sites);
 
@@ -73,7 +73,7 @@ class Sape extends CI_Controller {
         //         ->db_fields(true)
         //         ->xml_cache(3600)
         //         // ->flush_query_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // var_dump($get_sites_links_count);
 
@@ -83,7 +83,7 @@ class Sape extends CI_Controller {
         //         ->db_fields(true)
         //         ->xml_cache(300)
         //         // ->flush_query_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // var_dump($get_sites_pages_count);
 
@@ -93,7 +93,7 @@ class Sape extends CI_Controller {
         //         ->db_fields(false)
         //         ->xml_cache(3600)
         //         // ->flush_query_cache()
-        //         ->fetch()
+        //         ->send()
         //         ->get_xml();
         // var_dump($get_site_money_stats);
 
@@ -101,6 +101,7 @@ class Sape extends CI_Controller {
 
     /**
     * ремаппинг методов роутинга, чтобы легче было отличать функции от страниц
+    * Методы, которые имеют префикс "action_" - являются страницами, которые можно запросить через браузер
     */
     public function _remap($method, $params = array()) {
         $method = 'action_' . $method;
@@ -115,5 +116,37 @@ class Sape extends CI_Controller {
         if (func_num_args()) {
             show_404();
         }
+    }
+
+    function action_get_sites() {
+        // iso8601_decode(date)
+        $get_sites = $this
+                ->_sapeapi
+                ->query('sape.get_sites')
+                ->db_fields(true)
+                ->xml_cache(3600)
+                ->send();
+
+        echo $this->Get_sites->get_json();
+    }
+
+    function action_links($id = '', $status = false) {
+        if (!$id) {
+            show_404();
+        }
+
+        $get_site_links = $this->_sapeapi
+                ->query('sape.get_site_links', array($id))
+                ->db_fields(true);
+                // ->query_select('id, url')
+
+        if ($status) {
+            $get_site_links = $get_site_links->query_where(array('status' => $status));
+        }
+
+        $get_site_links = $get_site_links->xml_cache(500)->send();
+
+        echo $this->Get_site_links->get_json();
+        log_message('debug', 'Sape controller - action_orders');
     }
 }

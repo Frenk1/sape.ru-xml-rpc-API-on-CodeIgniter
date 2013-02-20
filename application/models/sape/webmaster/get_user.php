@@ -105,7 +105,7 @@ class Get_user extends MY_Model {
     public $CI;
     public $_table_name = false;
     public $_result_type = 'one_to_one';
-    private $_ttl = 1;
+    private $_ttl = 1800;
 
     function __construct() {
         parent::__construct();
@@ -124,8 +124,8 @@ class Get_user extends MY_Model {
     * и их запись
     * если $sync_db_fields == true, то нужно синхронизировать поля с бд
     */
-    public function init($data, $sync_db_fields = false) {
-        $this->process_data($data, $sync_db_fields, $this->_fields_params);
+    public function init($data, $sync_db_fields = false, $query_info, $active_records_params = false) {
+        $this->process_data($data, $sync_db_fields, $this->_fields_params, $query_info, $active_records_params);
     }
 }
 ?>

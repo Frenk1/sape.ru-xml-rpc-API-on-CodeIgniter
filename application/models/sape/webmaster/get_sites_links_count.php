@@ -42,8 +42,8 @@ class Get_sites_links_count extends MY_Model {
     * и их запись
     * если $sync_db_fields == true, то нужно синхронизировать поля с бд
     */
-    public function init($data, $sync_db_fields = false) {
-        $this->process_data($data, $sync_db_fields, $this->_fields_params);
+    public function init($data, $sync_db_fields = false, $query_info, $active_records_params = false) {
+        $this->process_data($data, $sync_db_fields, $this->_fields_params, $query_info, $active_records_params);
     }
 }
 ?>

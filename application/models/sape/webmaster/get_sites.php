@@ -38,14 +38,16 @@ class Get_sites extends MY_Model {
 
             'date_created'                         => array(
                                                         'sync' => true,
-                                                        'type' => 'VARCHAR',
-                                                        'constraint' => 20,
+                                                        'callback' => 'iso8601_decode', // function name
+                                                        # так как дата будет преобразована, то можно сменить тип поля на DATETIME
+                                                        'type' => 'DATETIME',
                                                         ),
 
             'date_last_mpp_changed'                 => array(
                                                         'sync' => true,
-                                                        'type' => 'VARCHAR',
-                                                        'constraint' => 20,
+                                                        'callback' => 'iso8601_decode', // function name
+                                                        # так как дата будет преобразована, то можно сменить тип поля на DATETIME
+                                                        'type' => 'DATETIME',
                                                         ),
 
             'status'                               => array(
@@ -201,13 +203,19 @@ class Get_sites extends MY_Model {
     */
     public $CI;
     public $_table_name = false;
-    private $_ttl = false;
+    public $_json;
+    /**
+    * сколько времени данные считать актуальными (в секундах)
+    * желательно ставить 8-15 часов
+    */
+    private $_ttl; 
 
     function __construct() {
         parent::__construct();
         $this->CI =& get_instance();
-        $this->_table_name = __CLASS__;
+        $this->_table_name = strtolower(__CLASS__);
 
+        $this->_ttl = 3600;
         if ($this->_ttl) {
             $this->set_ttl($this->_ttl);
         }
@@ -220,10 +228,8 @@ class Get_sites extends MY_Model {
     * и их запись
     * если $sync_db_fields == true, то нужно синхронизировать поля с бд
     */
-    public function init($data, $sync_db_fields = false) {
-        $this->process_data($data, $sync_db_fields, $this->_fields_params);
+    public function init($data, $sync_db_fields = false, $query_info, $active_records_params = false) {
+        $this->process_data($data, $sync_db_fields, $this->_fields_params, $query_info, $active_records_params);
     }
-
-
 }
 ?>

@@ -214,6 +214,9 @@ switch (ENVIRONMENT)
 	// Path to index.php file
 	define('ROOTPATH', pathinfo($_SERVER['SCRIPT_FILENAME'], PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR);
 
+	// Path to root path from index.php
+	define('SCPATH', dirname($_SERVER['SCRIPT_NAME']));
+
 	// The path to the "application" folder
 	if (is_dir($application_folder))
 	{

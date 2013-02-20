@@ -52,23 +52,26 @@ class Frontend extends CI_Controller {
             'SLEEP' => array('count' => 0, 'sum' => 0),
             );
 
-        $time = strftime('%Y-%m-%d %H:%M:%S');
-        $query_set = array('ci_expire_date > ' => $time, 'ci_create_date < ' => $time, 'ci_query' => 'sape.get_site_links__' . $id);
-        $this->db->select("count(status) as count, status, sum(price) as sum");
-        $this->db->group_by('status');
-        $status_count_query = $this->db->get_where('get_site_links', $query_set);
-        $status_counters = $status_count_query->result_array();
-        foreach (array_keys($statuses) as $s) {
-            foreach ($status_counters as $s_group) {
-                if ($s == $s_group['status']) {
-                    $statuses[$s] = array(
-                            'count' => $s_group['count'], 
-                            'sum' => number_format($s_group['sum'], 2, '.', ' '),
-                        );
+            $time = strftime('%Y-%m-%d %H:%M:%S');
+        if ($this->db->table_exists('get_site_links')) {
+            $query_set = array('ci_expire_date > ' => $time, 'ci_create_date < ' => $time, 'ci_query' => 'sape.get_site_links__' . $id);
+            $this->db->select("count(status) as count, status, sum(price) as sum");
+            $this->db->group_by('status');
+            $status_count_query = $this->db->get_where('get_site_links', $query_set);
+            $status_counters = $status_count_query->result_array();
+            foreach (array_keys($statuses) as $s) {
+                foreach ($status_counters as $s_group) {
+                    if ($s == $s_group['status']) {
+                        $statuses[$s] = array(
+                                'count' => $s_group['count'], 
+                                'sum' => number_format($s_group['sum'], 2, '.', ' '),
+                            );
+                    }
                 }
             }
+            $status_count_query->free_result();
         }
-        $status_count_query->free_result();
+
 
         $this->addons['grid_url'] = 'sape/links/' . $id;
         $this->addons['status'] = '';
